@@ -27,6 +27,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private String rutaDestino;
     private final String DIRECTORIO = "src/files/articulos/";
     private String imagen = "";
+    private String imagenAnterior;
     
     public FrmArticulo() {
         initComponents();
@@ -90,6 +91,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         this.rutaDestino = "";
         this.rutaOrigen = "";
         this.accion = "guardar";
+        this.imagenAnterior = "";
     }
     
     private void mensajeError(String mensaje){
@@ -500,10 +502,19 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         String resp;
         
         if (this.accion.equals("editar")){
-            resp = "OK";
-            //resp = this.CONTROL.actualizar(Integer.parseInt(txtId.getText()), txtNombre.getText(), this.nombreAnt ,txtDescripcion.getText() );
+            String imagenActual = "";
+            if (this.imagen.equals("")) {
+                imagenActual = this.imagenAnterior;
+            } else {
+                imagenActual = this.imagen;
+            }
+            Categoria seleccionado = (Categoria) cboCategoria.getSelectedItem();
+            resp = this.CONTROL.actualizar(Integer.parseInt(txtId.getText()),seleccionado.getId(), txtCodigo.getText(), txtNombre.getText(), this.nombreAnt ,Double.parseDouble(txtPrecioVenta.getText()), Integer.parseInt(txtStock.getText()), txtDescripcion.getText(), imagenActual );
             if (resp.equals("OK")) {
-                this.mensajeOk("Se ha actualizado la categoría de manera exitosa.");
+                if (!this.imagen.equals("")) {
+                    this.subirImagenes();
+                }
+                this.mensajeOk("Se ha actualizado el artículo de manera exitosa.");
                 this.limpiar();
                 this.listar("");
                 lblId.setVisible(false);
@@ -535,16 +546,32 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         if (tablaListado.getSelectedRowCount() == 1) {
             String id = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 0));
-            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 1));
-            this.nombreAnt = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 1));
-            String descripcion = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 2));
+            int categoriaId = Integer.parseInt(String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 1)));
+            String categoriaNombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 2));
+            String codigo = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 3));
+            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 4));
+            this.nombreAnt = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 4));
+            String precioVenta = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 5));
+            String stock = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 6));
+            String descripcion = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 7));
+            this.imagenAnterior = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 8));
             
             lblId.setVisible(true);
             txtId.setVisible(true);
             
             txtId.setText(id);
+            Categoria seleccionado = new Categoria(categoriaId, categoriaNombre);
+            cboCategoria.setSelectedItem(seleccionado);
+            txtCodigo.setText(codigo);
             txtNombre.setText(nombre);
+            txtPrecioVenta.setText(precioVenta);
+            txtStock.setText(stock);
             txtDescripcion.setText(descripcion);
+            
+            ImageIcon im = new ImageIcon(this.DIRECTORIO + this.imagenAnterior);
+            Icon icono = new ImageIcon(im.getImage().getScaledInstance(lblImagen.getWidth(), lblImagen.getHeight(), Image.SCALE_DEFAULT));
+            lblImagen.setIcon(icono);
+            lblImagen.repaint();
             
             tabGeneral.setEnabledAt(0, false);
             tabGeneral.setEnabledAt(1, true);

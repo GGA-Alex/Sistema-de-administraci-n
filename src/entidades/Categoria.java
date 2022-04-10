@@ -1,5 +1,7 @@
 package entidades;
 
+import java.util.Objects;
+
 public class Categoria {
     private int id;
     private String nombre;
@@ -63,6 +65,43 @@ public class Categoria {
     public String toString() {
         return nombre;
     }
+    
+    // equals and hashcode
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + this.id;
+        hash = 89 * hash + Objects.hashCode(this.nombre);
+        hash = 89 * hash + Objects.hashCode(this.descripcion);
+        hash = 89 * hash + (this.activo ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Categoria other = (Categoria) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        if (this.activo != other.activo) {
+            return false;
+        }
+        if (!Objects.equals(this.nombre, other.nombre)) {
+            return false;
+        }
+        return Objects.equals(this.descripcion, other.descripcion);
+    }
+    
     
     
 }
