@@ -1,20 +1,25 @@
 package negocio;
 
 import datos.ArticuloDAO;
+import datos.CategoriaDAO;
 import entidades.Articulo;
+import entidades.Categoria;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
 
 public class ArticuloControl {
 
     private final ArticuloDAO DATOS;
+    private final CategoriaDAO DATOSCAT;
     private Articulo obj;
     private DefaultTableModel modeloTabla;
     private int registrosMostrados = 0;
 
     public ArticuloControl() {
         this.DATOS = new ArticuloDAO();
+        this.DATOSCAT = new CategoriaDAO();
         this.obj = new Articulo();
     }
 
@@ -50,6 +55,16 @@ public class ArticuloControl {
         }
         return this.modeloTabla;
     }
+    
+    public DefaultComboBoxModel seleccionar(){
+        DefaultComboBoxModel items = new DefaultComboBoxModel();
+        List<Categoria> lista = new ArrayList();
+        lista = DATOSCAT.seleccionar();
+        for(Categoria item : lista){
+            items.addElement(new Categoria(item.getId(), item.getNombre()));
+        }
+        return items;
+    } 
 
     public String insertar(int categoriaId, String codigo, String nombre, double precio_venta, int stock, String descripcion, String imagen) {
         if (DATOS.existe(nombre)) {
