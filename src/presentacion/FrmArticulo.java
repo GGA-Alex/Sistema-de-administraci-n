@@ -87,11 +87,12 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         txtPrecioVenta.setText("");
         txtStock.setText("");
         txtDescripcion.setText("");
+        this.imagen = "";
+        this.imagenAnterior = "";
         lblImagen.setIcon(null);
         this.rutaDestino = "";
         this.rutaOrigen = "";
         this.accion = "guardar";
-        this.imagenAnterior = "";
     }
     
     private void mensajeError(String mensaje){
