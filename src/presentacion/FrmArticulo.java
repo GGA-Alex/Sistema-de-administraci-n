@@ -1,6 +1,7 @@
 
 package presentacion;
 
+import entidades.Categoria;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,8 +81,14 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     
     private void limpiar(){
         txtId.setText("");
+        txtCodigo.setText("");
         txtNombre.setText("");
+        txtPrecioVenta.setText("");
+        txtStock.setText("");
         txtDescripcion.setText("");
+        lblImagen.setIcon(null);
+        this.rutaDestino = "";
+        this.rutaOrigen = "";
         this.accion = "guardar";
     }
     
@@ -134,7 +141,6 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         txtCodigo = new javax.swing.JTextField();
         txtStock = new javax.swing.JFormattedTextField();
         txtPrecioVenta = new javax.swing.JFormattedTextField();
-        jButton1 = new javax.swing.JButton();
 
         jLabel2.setText("jLabel2");
 
@@ -327,12 +333,9 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
             }
         });
 
-        jButton1.setText("Prueba de guardado de imagen");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        txtStock.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+
+        txtPrecioVenta.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.00"))));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -370,10 +373,8 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnAgregarImagen)
-                                    .addComponent(jButton1))
-                                .addGap(0, 376, Short.MAX_VALUE))
+                                .addComponent(btnAgregarImagen)
+                                .addGap(0, 452, Short.MAX_VALUE))
                             .addComponent(txtPrecioVenta)
                             .addComponent(txtNombre)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
@@ -418,13 +419,10 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                     .addComponent(jLabel10)
                     .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel11)
                     .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(btnAgregarImagen)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
+                    .addComponent(btnAgregarImagen))
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -444,7 +442,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, 924, Short.MAX_VALUE)
+            .addComponent(tabGeneral)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -476,11 +474,24 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (txtNombre.getText().length() == 0 || txtNombre.getText().length() > 20){
-            JOptionPane.showMessageDialog(this, "El campo nombre es obligatorio y no debe de ser mayor a 20 caracteres.", "Sistema", JOptionPane.WARNING_MESSAGE);
+        if (txtNombre.getText().length() == 0 || txtNombre.getText().length() > 100){
+            JOptionPane.showMessageDialog(this, "El campo nombre es obligatorio y no debe de ser mayor a 100 caracteres.", "Sistema", JOptionPane.WARNING_MESSAGE);
             txtNombre.requestFocus();
             return;
         }
+        
+        if (txtPrecioVenta.getText().length() == 0) {
+            JOptionPane.showMessageDialog(this, "El campo precio de venta es obligatorio.", "Sistema", JOptionPane.WARNING_MESSAGE);
+            txtPrecioVenta.requestFocus();
+            return;
+        }
+        
+        if (txtStock.getText().length() == 0) {
+            JOptionPane.showMessageDialog(this, "El campo stock es obligatorio.", "Sistema", JOptionPane.WARNING_MESSAGE);
+            txtStock.requestFocus();
+            return;
+        }
+        
         if (txtDescripcion.getText().length() > 255){
             JOptionPane.showMessageDialog(this, "Debes de ingresar una descripción no mayor a 255 caracteres.", "Sistema", JOptionPane.WARNING_MESSAGE);
             txtDescripcion.requestFocus();
@@ -505,10 +516,13 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                 this.limpiar();
             }
         } else {
-            resp = "OK";
-            //resp = this.CONTROL.insertar(txtNombre.getText(), txtDescripcion.getText());
+            Categoria seleccionado = (Categoria) cboCategoria.getSelectedItem();
+            resp = this.CONTROL.insertar(seleccionado.getId(), txtCodigo.getText(), txtNombre.getText(), Double.parseDouble(txtPrecioVenta.getText()), Integer.parseInt(txtStock.getText()), txtDescripcion.getText(), this.imagen );
             if (resp.equals("OK")) {
-                this.mensajeOk("Se ha registrado la categoría de manera exitosa.");
+                if (!this.imagen.equals("")) {
+                    this.subirImagenes();
+                }
+                this.mensajeOk("Se ha registrado el artículo de manera exitosa.");
                 this.limpiar();
                 this.listar("");
             } else {
@@ -596,10 +610,6 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnAgregarImagenActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.subirImagenes();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActivar;
@@ -611,7 +621,6 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private javax.swing.JToggleButton btnEditar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JComboBox<String> cboCategoria;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
