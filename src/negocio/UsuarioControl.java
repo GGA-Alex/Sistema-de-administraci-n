@@ -52,7 +52,7 @@ public class UsuarioControl {
             registro[7] = item.getTelefono();
             registro[8] = item.getEmail();
             registro[9] = item.getClave();
-            registro[9] = estado;
+            registro[10] = estado;
             this.modeloTabla.addRow(registro);
             this.registrosMostrados = this.registrosMostrados + 1;
         }
