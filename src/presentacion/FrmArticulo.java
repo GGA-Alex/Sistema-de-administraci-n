@@ -65,9 +65,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         if (totalPaginas == 0) {
             totalPaginas = 1;
         }
-        
         cboNumPagina.removeAllItems();
-        
         for (int i = 1; i <= totalPaginas; i++) {
             cboNumPagina.addItem(Integer.toString(i));
         }
@@ -85,7 +83,6 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         } else {
             tablaListado.setModel(this.CONTROL.listar(texto, this.totalPorPagina, 1));
         }
-        
         
         TableRowSorter orden = new  TableRowSorter(tablaListado.getModel());
         tablaListado.setRowSorter(orden);
@@ -664,38 +661,38 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private void btnDesactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesactivarActionPerformed
         if (tablaListado.getSelectedRowCount() == 1) {
             String id = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 0));
-            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 1));
+            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 3));
             
-            if (JOptionPane.showConfirmDialog(this, "¿Desea desactivar la categoría " + nombre + "?", "Desactivar" , JOptionPane.YES_NO_OPTION) == 0) {
+            if (JOptionPane.showConfirmDialog(this, "¿Desea desactivar el artículo " + nombre + "?", "Desactivar" , JOptionPane.YES_NO_OPTION) == 0) {
                 String resp = this.CONTROL.desactivar(Integer.valueOf(id));
                 if (resp.equals("OK")) {
-                    this.mensajeOk("Categoría descativada con exito.");
+                    this.mensajeOk("Articulo descativado con exito.");
                     this.listar("", false);
                 } else {
                     this.mensajeError(resp);
                 }
             }
         } else {
-            this.mensajeError("Seleccione una categoría a desactivar.");
+            this.mensajeError("Seleccione un artículo a desactivar.");
         }
     }//GEN-LAST:event_btnDesactivarActionPerformed
 
     private void btnActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivarActionPerformed
         if (tablaListado.getSelectedRowCount() == 1) {
             String id = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 0));
-            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 1));
+            String nombre = String.valueOf(tablaListado.getValueAt(tablaListado.getSelectedRow(), 3));
             
-            if (JOptionPane.showConfirmDialog(this, "¿Desea activar la categoría " + nombre + "?", "Desactivar" , JOptionPane.YES_NO_OPTION) == 0) {
+            if (JOptionPane.showConfirmDialog(this, "¿Desea activar el artículo " + nombre + "?", "Desactivar" , JOptionPane.YES_NO_OPTION) == 0) {
                 String resp = this.CONTROL.activar(Integer.valueOf(id));
                 if (resp.equals("OK")) {
-                    this.mensajeOk("Categoría activada con exito.");
+                    this.mensajeOk("Artículo activado con exito.");
                     this.listar("", false);
                 } else {
                     this.mensajeError(resp);
                 }
             }
         } else {
-            this.mensajeError("Seleccione una categoría a activar.");
+            this.mensajeError("Seleccione un artículo a activar.");
         }
     }//GEN-LAST:event_btnActivarActionPerformed
 
