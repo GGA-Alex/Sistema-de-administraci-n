@@ -29,10 +29,17 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private String imagen = "";
     private String imagenAnterior;
     
+    private int totalPorPagina = 10;
+    private int numPagina = 1;
+    private boolean primeraCarga = true;
+    private int totalRegistros;
+    
     public FrmArticulo() {
         initComponents();
         this.CONTROL = new ArticuloControl();
-        this.listar("");
+        this.paginar();
+        this.listar("", false);
+        this.primeraCarga = false;
         tabGeneral.setEnabledAt(1, false);
         this.accion = "guardar";
         txtId.setVisible(false);
@@ -48,8 +55,38 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         tablaListado.getTableHeader().getColumnModel().getColumn(1).setMinWidth(0);
     }
     
-    private void listar(String texto){
-        tablaListado.setModel(this.CONTROL.listar(texto, 10, 1));
+    private void paginar(){
+        int totalPaginas;
+        
+        this.totalRegistros = this.CONTROL.total();
+        this.totalPorPagina = Integer.parseInt((String) cboTotalPorPagina.getSelectedItem());
+        totalPaginas = (int) (Math.ceil((double) this.totalRegistros / this.totalPorPagina));
+        
+        if (totalPaginas == 0) {
+            totalPaginas = 1;
+        }
+        
+        cboNumPagina.removeAllItems();
+        
+        for (int i = 1; i <= totalPaginas; i++) {
+            cboNumPagina.addItem(Integer.toString(i));
+        }
+        cboNumPagina.setSelectedIndex(0);
+    }
+    
+    private void listar(String texto, boolean paginar){
+        this.totalPorPagina = Integer.parseInt((String) cboTotalPorPagina.getSelectedItem());
+        if ((String) cboNumPagina.getSelectedItem() != null) {
+            this.numPagina = Integer.parseInt((String) cboNumPagina.getSelectedItem());
+        }
+        
+        if (paginar == true) {
+            tablaListado.setModel(this.CONTROL.listar(texto, this.totalPorPagina, this.numPagina));
+        } else {
+            tablaListado.setModel(this.CONTROL.listar(texto, this.totalPorPagina, 1));
+        }
+        
+        
         TableRowSorter orden = new  TableRowSorter(tablaListado.getModel());
         tablaListado.setRowSorter(orden);
         this.ocultarColumnas();
@@ -120,6 +157,10 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         btnEditar = new javax.swing.JToggleButton();
         btnActivar = new javax.swing.JButton();
         btnDesactivar = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
+        cboTotalPorPagina = new javax.swing.JComboBox<>();
+        jLabel13 = new javax.swing.JLabel();
+        cboNumPagina = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -212,30 +253,59 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
             }
         });
 
+        jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel12.setText("Registros");
+
+        cboTotalPorPagina.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10", "20", "50", "100", "200", "500" }));
+        cboTotalPorPagina.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboTotalPorPaginaActionPerformed(evt);
+            }
+        });
+
+        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel13.setText("# de Página");
+
+        cboNumPagina.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboNumPaginaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtBuscar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAgregarCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(btnActivar, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnDesactivar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 378, Short.MAX_VALUE)
-                        .addComponent(lblTotalRegistros, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 169, Short.MAX_VALUE)
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cboNumPagina, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblTotalRegistros, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtBuscar))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cboTotalPorPagina, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnAgregarCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnBuscar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -243,18 +313,25 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
                     .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBuscar)
-                    .addComponent(btnAgregarCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEditar))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEditar)
+                    .addComponent(btnAgregarCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12)
+                    .addComponent(cboTotalPorPagina, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTotalRegistros)
                     .addComponent(btnActivar)
-                    .addComponent(btnDesactivar))
+                    .addComponent(btnDesactivar)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel13)
+                        .addComponent(cboNumPagina, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(12, 12, 12))
         );
 
@@ -456,7 +533,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        this.listar(txtBuscar.getText());
+        this.listar(txtBuscar.getText(), false);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnAgregarCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarCategoriaActionPerformed
@@ -517,7 +594,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                 }
                 this.mensajeOk("Se ha actualizado el artículo de manera exitosa.");
                 this.limpiar();
-                this.listar("");
+                this.listar("", false);
                 lblId.setVisible(false);
                 txtId.setVisible(false);
                 tabGeneral.setSelectedIndex(0);
@@ -536,7 +613,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                 }
                 this.mensajeOk("Se ha registrado el artículo de manera exitosa.");
                 this.limpiar();
-                this.listar("");
+                this.listar("", false);
             } else {
                 this.mensajeError(resp);
                 this.limpiar();
@@ -593,7 +670,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                 String resp = this.CONTROL.desactivar(Integer.valueOf(id));
                 if (resp.equals("OK")) {
                     this.mensajeOk("Categoría descativada con exito.");
-                    this.listar("");
+                    this.listar("", false);
                 } else {
                     this.mensajeError(resp);
                 }
@@ -612,7 +689,7 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
                 String resp = this.CONTROL.activar(Integer.valueOf(id));
                 if (resp.equals("OK")) {
                     this.mensajeOk("Categoría activada con exito.");
-                    this.listar("");
+                    this.listar("", false);
                 } else {
                     this.mensajeError(resp);
                 }
@@ -638,6 +715,16 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnAgregarImagenActionPerformed
 
+    private void cboTotalPorPaginaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboTotalPorPaginaActionPerformed
+        this.paginar();
+    }//GEN-LAST:event_cboTotalPorPaginaActionPerformed
+
+    private void cboNumPaginaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboNumPaginaActionPerformed
+        if (this.primeraCarga == false) {
+            this.listar("", true);
+        }
+    }//GEN-LAST:event_cboNumPaginaActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActivar;
@@ -649,9 +736,13 @@ public class FrmArticulo extends javax.swing.JInternalFrame {
     private javax.swing.JToggleButton btnEditar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JComboBox<String> cboCategoria;
+    private javax.swing.JComboBox<String> cboNumPagina;
+    private javax.swing.JComboBox<String> cboTotalPorPagina;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
